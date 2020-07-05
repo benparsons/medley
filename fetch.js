@@ -6,7 +6,7 @@ var config = require("./config/config.json");
 main();
 async function main() {
     const options = {
-        url: `https://api.creativecommons.engineering/v1/images?q=waterfall&page_size=500`,
+        url: `https://api.creativecommons.engineering/v1/images?q=spark&page_size=500`,
         method: 'GET',
         headers: {
             'Accept': 'application/json',
@@ -23,10 +23,10 @@ async function main() {
     db.serialize(function () {
         for (row of response.data.results) {
             let sql = `INSERT INTO cc (title,  creator,  thumbnail,  license,  detail_url,  width,  height,  id,  creator_url,  url,  source,  license_version,  foreign_landing_url,  related_url) VALUES (
-            '${row.title ? row.title.replace(/\'/, "''") : "(title missing)"}',
-            '${row.creator ? row.creator.replace(/\'/, "''") : "(creator missing)"}',
+            '${row.title ? row.title.replace(/\'/g, "''") : "(title missing)"}',
+            '${row.creator ? row.creator.replace(/\'/g, "''") : "(creator missing)"}',
             '${row.thumbnail}',
-            '${row.license}', '${row.detail_url}', ${row.width}, ${row.height},
+            '${row.license}', '${row.detail_url}', ${row.width || 0}, ${row.height || 0},
             '${row.id}', '${row.creator_url}', '${row.url}', '${row.source}',
             '${row.license_version}',
             '${row.foreign_landing_url}', '${row.related_url}'
@@ -34,8 +34,8 @@ async function main() {
 
                 db.run(sql, err => {
                     if (err) {
-                        // console.log(err);
-                        // console.log(sql);
+                     console.log(err);
+                     console.log(sql);
                     }
                 });
             
