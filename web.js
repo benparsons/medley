@@ -61,7 +61,7 @@ app.get('/api/1/get/:interesting', function(req, res) {
 
 app.get('/api/1/save/:project/:cc_id/:save_data', function (req, res) {
     let sql = `INSERT INTO project_saves (project_name, c_id, save_data)
-    VALUES ('${req.params.project}', '${req.params.cc_id}', '${req.params.save_data})`;
+    VALUES ('${req.params.project}', '${req.params.cc_id}', '${req.params.save_data}')`;
     db.run(sql, err => {
         if (err) {
             console.log(err);
