@@ -60,7 +60,7 @@ app.get('/api/1/get/:interesting', function(req, res) {
 });
 
 app.get('/api/1/save/:project/:cc_id/:save_data', function (req, res) {
-    let sql = `INSERT INTO project_saves (project_name, c_id, save_data)
+    let sql = `INSERT INTO project_saves (project_name, cc_id, save_data)
     VALUES ('${req.params.project}', '${req.params.cc_id}', '${req.params.save_data}')`;
     db.run(sql, err => {
         if (err) {
@@ -71,6 +71,23 @@ app.get('/api/1/save/:project/:cc_id/:save_data', function (req, res) {
         }
     });
 });
+
+app.get('/api/1/compare/:project_name', function (req, res) {
+    let sql = `select * from
+    project_saves
+    INNER JOIN cc ON project_saves.cc_id = cc.id
+    WHERE project_name = '${req.params.project_name}'
+    order by (wins + losses) asc
+    limit 2`;
+    console.log(req.params.project_name)
+    db.all(sql, (err, rows) => {
+        if (err) {
+            // console.log(err);
+            // console.log(sql);
+        }
+        res.send(rows);
+    });
+})
 
 app.listen(8090, function () {  
     console.log('Medley listing on :8090');  
