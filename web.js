@@ -98,6 +98,21 @@ app.get('/api/1/vote/:win/:lose', function (req, res) {
         
 });
 
+app.get('/api/1/project_save/:save_id', function(req, res) {
+    let sql = `select * from
+    project_saves
+    INNER JOIN cc ON project_saves.cc_id = cc.id
+    WHERE save_id = ${req.params.save_id}`;
+    console.log(sql);
+    db.get(sql, (err, row) => {
+        if (err) {
+            // console.log(err);
+            // console.log(sql);
+        }
+            res.send(row);
+    });
+})
+
 app.listen(8090, function () {  
     console.log('Medley listing on :8090');  
 });
