@@ -89,6 +89,15 @@ app.get('/api/1/compare/:project_name', function (req, res) {
     });
 })
 
+app.get('/api/1/vote/:win/:lose', function (req, res) {
+    let winSql = `update project_saves set wins = wins + 1 WHERE save_id = ${req.params.win}`;
+    let loseSql = `update project_saves set losses = losses + 1 WHERE save_id = ${req.params.lose}`;
+    db.exec(winSql).exec(loseSql, () => {
+        res.send(JSON.stringify({ok: true}));
+    });
+        
+});
+
 app.listen(8090, function () {  
     console.log('Medley listing on :8090');  
 });
