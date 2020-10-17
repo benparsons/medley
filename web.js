@@ -77,7 +77,7 @@ app.get('/api/1/compare/:project_name', function (req, res) {
     project_saves
     INNER JOIN cc ON project_saves.cc_id = cc.id
     WHERE project_name = '${req.params.project_name}'
-    order by (wins + losses) asc
+    order by (wins + losses * 2) asc
     limit 2`;
     console.log(req.params.project_name)
     db.all(sql, (err, rows) => {
