@@ -119,6 +119,10 @@ app.get('/api/1/project_save/:save_id/:output', function(req, res) {
     });
 })
 
+app.get('/images/:filename', function(req, res) {
+    res.sendFile('images/' + req.params.filename,  { root: __dirname });
+});
+
 app.listen(8090, function () {  
     console.log('Medley listing on :8090');  
 });
