@@ -98,11 +98,17 @@ app.get('/api/1/vote/:win/:lose', function (req, res) {
         
 });
 
-app.get('/api/1/project_save/:save_id', function(req, res) {
+app.get('/api/1/project_save/:save_id/:output', function(req, res) {
+    let sort_order = 'ASC';
+    if (req.params.output === 'output') {
+        sort_order = 'DESC';
+    }
     let sql = `select * from
     project_saves
     INNER JOIN cc ON project_saves.cc_id = cc.id
-    WHERE save_id = ${req.params.save_id}`;
+	LEFT JOIN cc_local_cache ON project_saves.cc_id = cc_local_cache.cc_id
+    WHERE save_id = ${req.params.save_id}
+    ORDER BY cc_local_cache.width ${sort_order}`;
     console.log(sql);
     db.get(sql, (err, row) => {
         if (err) {
