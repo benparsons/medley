@@ -103,7 +103,7 @@ app.get('/api/1/project_save/:save_id/:output', function(req, res) {
     if (req.params.output === 'output') {
         sort_order = 'DESC';
     }
-    let sql = `select * from
+    let sql = `select cc.width as cc_width, cc.height as cc_height, cc_local_cache.width as cc_local_cache_width, cc_local_cache.height as cc_local_cache_height, * from
     project_saves
     INNER JOIN cc ON project_saves.cc_id = cc.id
 	LEFT JOIN cc_local_cache ON project_saves.cc_id = cc_local_cache.cc_id
