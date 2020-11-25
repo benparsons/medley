@@ -8,6 +8,14 @@ app.use(function(req, res, next) {
 app.set('view engine', 'pug');
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('images.db');
+var Flickr = require('flickr-sdk');
+var flickr = new Flickr("");
+flickr.photos.getSizes({photo_id:29373083072}).then(function (res) {
+    console.log('yay!', res.body);
+  }).catch(function (err) {
+    console.error('bonk', err);
+  });
+
 
 app.get('/deal', function(req, res) {
     let sql = "select * from cc LEFT JOIN cc_notes ON cc.id = cc_notes.cc_id WHERE cc_notes.interesting IS NULL ORDER BY RANDOM() LIMIT 1";
