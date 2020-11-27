@@ -119,6 +119,9 @@ app.get('/api/1/project_save/:save_id/:output', function(req, res) {
     });
 })
 
+// of the top two current scores
+// sort by the top score
+// then by the least recently used same cc_id
 app.get('/api/1/next_project_save/:project', function (req, res) {
     let sql = `select *
     from project_saves p1
