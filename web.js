@@ -170,8 +170,37 @@ app.get('/api/1/flickr/pull/:photo_id/:cc_id', function (req, res) {
     });
 });
 
-app.get('/images/:filename', function (req, res) {
-    res.sendFile('images/' + req.params.filename, { root: __dirname });
+app.get('/api/1/next_project_save/:project', function (req, res) {
+    let sql = `select *
+    from project_saves p1
+    left join (select cc_id, max(published) as p from project_saves
+    group by cc_id
+    order by p
+    )  p2 on p1.cc_id = p2.cc_id
+
+    where wins IN (
+        select distinct wins
+        from project_saves
+        where published IS null
+        order by wins DESC
+        limit 2
+    )
+    and published is null
+    and project_name = '${req.params.project}'
+
+    order by wins DESC, p ASC
+    limit 1`;
+    db.get(sql, (err, row) => {
+        if (err) {
+            // console.log(err);
+            // console.log(sql);
+        }
+            res.send(row);
+    });
+});
+
+app.get('/images/:filename', function(req, res) {
+    res.sendFile('images/' + req.params.filename,  { root: __dirname });
 });
 
 app.listen(8090, function () {
