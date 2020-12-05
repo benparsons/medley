@@ -8,10 +8,14 @@ app.use(function(req, res, next) {
 app.set('view engine', 'pug');
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('images.db');
+let config = require('./config.json');
 var Flickr = require('flickr-sdk');
-var flickr = new Flickr("");
+var flickr = new Flickr(config.flickr.key);
 flickr.photos.getSizes({photo_id:29373083072}).then(function (res) {
-    console.log('yay!', res.body);
+    console.log('yay!');
+    res.body.sizes.size.forEach(s => {
+        console.log(s);
+    });
   }).catch(function (err) {
     console.error('bonk', err);
   });
