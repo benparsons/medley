@@ -63,11 +63,12 @@ app.get('/deal/interesting/:id/:value', function (req, res) {
     // });
 });
 
-app.get('/release/:project', async function (req, res) { // project=2020-06-20
+app.get('/release/:project/:outputMode', async function (req, res) { // project=2020-06-20
     let nextProjectSaveResult = await nextProjectSave(req.params.project);
-    let nextProjectSaveResultDetails = 
+    let nextProjectSaveResultDetails = await projectSaveDetails(nextProjectSaveResult.save_id, req.params.outputMode)
     res.render("release/preview", {
-        text: JSON.stringify(nextProject, null, 2)
+        result: JSON.stringify(nextProjectSaveResult, null, 2),
+        details: JSON.stringify(nextProjectSaveResultDetails, null, 2)
     });
 });
 
