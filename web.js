@@ -65,10 +65,20 @@ app.get('/deal/interesting/:id/:value', function (req, res) {
 
 app.get('/release/:project/:outputMode', async function (req, res) { // project=2020-06-20
     let nextProjectSaveResult = await nextProjectSave(req.params.project);
-    let nextProjectSaveResultDetails = await projectSaveDetails(nextProjectSaveResult.save_id, req.params.outputMode)
+    let details = await projectSaveDetails(nextProjectSaveResult.save_id, req.params.outputMode);
+
+    let imageUrl = details.filename ? details.filename : details.url;
+    let cc_width = details.filename ? details.cc_local_cache_width : details.cc_width;
+    let cc_height = details.filename ? details.cc_local_cache_height : details.cc_height;
+    let save_data = details.save_data;
+    let url =  `http://localhost:8989/2020-06-20-colour-match-api/?url=${encodeURI(imageUrl)}&cc_width=${cc_width}&cc_height=${cc_height}&save_data=${encodeURI(save_data)}#4`
+
     res.render("release/preview", {
         result: JSON.stringify(nextProjectSaveResult, null, 2),
-        details: JSON.stringify(nextProjectSaveResultDetails, null, 2)
+        details: JSON.stringify(details, null, 2),
+        url: url,
+        cc_width: cc_width,
+        cc_height: cc_height
     });
 });
 
@@ -140,7 +150,6 @@ async function projectSaveDetails(saveId, outputMode) {
     ORDER BY cc_local_cache.width ${sort_order}`;
     console.log("projectSaveDetails, saveId:" + saveId);
     let row = await db2.get(sql);
-    console.log(row);
     return row;
 }
 
