@@ -2,3 +2,4 @@ images.db
 node_modules/
 config.json
 images/
+.DS_Store

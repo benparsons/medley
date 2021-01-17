@@ -7,13 +7,22 @@ app.use(function (req, res, next) {
 });
 app.set('view engine', 'pug');
 var sqlite3 = require('sqlite3').verbose();
+var sqlite = require('sqlite');
 var db = new sqlite3.Database('images.db');
 let config = require('./config.json');
 var Flickr = require('flickr-sdk');
 var flickr = new Flickr(config.flickr.key);
 const https = require('https')
 const fs = require('fs');
+let db2 = {};
 
+(async () => {
+    // open the database
+    db2 = await sqlite.open({
+      filename: 'images.db',
+      driver: sqlite3.Database
+    })
+})()
 
 app.get('/deal', function (req, res) {
     let sql = "select * from cc LEFT JOIN cc_notes ON cc.id = cc_notes.cc_id WHERE cc_notes.interesting IS NULL ORDER BY RANDOM() LIMIT 1";
@@ -173,7 +182,12 @@ app.get('/api/1/flickr/pull/:photo_id/:cc_id', function (req, res) {
     });
 });
 
-app.get('/api/1/next_project_save/:project', function (req, res) {
+app.get('/api/1/next_project_save/:project', async function (req, res) {
+    let nextProject = await nextProjectSave(req.params.project)
+    res.send(nextProject);
+});
+
+async function nextProjectSave(project) {
     let sql = `select *
     from project_saves p1
     left join (select cc_id, max(published) as p from project_saves
@@ -189,18 +203,13 @@ app.get('/api/1/next_project_save/:project', function (req, res) {
         limit 2
     )
     and published is null
-    and project_name = '${req.params.project}'
+    and project_name = '${project}'
 
     order by wins DESC, p ASC
     limit 1`;
-    db.get(sql, (err, row) => {
-        if (err) {
-            // console.log(err);
-            // console.log(sql);
-        }
-            res.send(row);
-    });
-});
+    let row = await db2.get(sql);
+    return row;
+}
 
 app.get('/images/:filename', function(req, res) {
     res.sendFile('images/' + req.params.filename,  { root: __dirname });
