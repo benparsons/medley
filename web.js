@@ -63,6 +63,14 @@ app.get('/deal/interesting/:id/:value', function (req, res) {
     // });
 });
 
+app.get('/release/:project', async function (req, res) { // project=2020-06-20
+    let nextProjectSaveResult = await nextProjectSave(req.params.project);
+    let nextProjectSaveResultDetails = 
+    res.render("release/preview", {
+        text: JSON.stringify(nextProject, null, 2)
+    });
+});
+
 app.get('/api/1/get/:interesting', function (req, res) {
     let sql = `select * from cc LEFT JOIN cc_notes ON cc.id = cc_notes.cc_id WHERE cc_notes.interesting = '${req.params.interesting}' ORDER BY RANDOM() LIMIT 1`;
     db.get(sql, (err, row) => {
@@ -113,26 +121,27 @@ app.get('/api/1/vote/:win/:lose', function (req, res) {
 
 });
 
-app.get('/api/1/project_save/:save_id/:output', function (req, res) {
+app.get('/api/1/project_save/:save_id/:output', async function (req, res) {
+    let details = await projectSaveDetails(req.params.save_id, req.params.output);
+    res.send(details);
+});
+
+async function projectSaveDetails(saveId, outputMode) {
     let sort_order = 'ASC';
-    if (req.params.output === 'output') {
+    if (outputMode === 'output') {
         sort_order = 'DESC';
     }
     let sql = `select cc.width as cc_width, cc.height as cc_height, cc_local_cache.width as cc_local_cache_width, cc_local_cache.height as cc_local_cache_height, * from
     project_saves
     INNER JOIN cc ON project_saves.cc_id = cc.id
 	LEFT JOIN cc_local_cache ON project_saves.cc_id = cc_local_cache.cc_id
-    WHERE save_id = ${req.params.save_id}
+    WHERE save_id = ${saveId}
     ORDER BY cc_local_cache.width ${sort_order}`;
-    console.log(sql);
-    db.get(sql, (err, row) => {
-        if (err) {
-            // console.log(err);
-            // console.log(sql);
-        }
-        res.send(row);
-    });
-})
+    console.log("projectSaveDetails, saveId:" + saveId);
+    let row = await db2.get(sql);
+    console.log(row);
+    return row;
+}
 
 // of the top two current scores
 // sort by the top score
@@ -183,8 +192,8 @@ app.get('/api/1/flickr/pull/:photo_id/:cc_id', function (req, res) {
 });
 
 app.get('/api/1/next_project_save/:project', async function (req, res) {
-    let nextProject = await nextProjectSave(req.params.project)
-    res.send(nextProject);
+    let nextProjectSaveResult = await nextProjectSave(req.params.project);
+    res.send(nextProjectSaveResult);
 });
 
 async function nextProjectSave(project) {
